@@ -28,6 +28,11 @@ pis_cleaned.drop("Mideast ", axis=0, inplace=True)
 ### Turn empty space in dataset to display none
 pis_cleaned.replace("........", None, inplace=True)
 
+### Sort values in alphabetical order with United States at the top
+pis_cleaned = pis_cleaned.loc[
+    ["United States"] + sorted([state for state in pis_cleaned.index if state != "United States"])
+]
+
 ### display
 pis_cleaned.head(60)
 
