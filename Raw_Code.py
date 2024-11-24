@@ -33,9 +33,10 @@ pis_cleaned = pis_cleaned.loc[
     ["United States"] + sorted([state for state in pis_cleaned.index if state != "United States"])
 ]
 
+### remove extra spaces from the end
+pis_cleaned.index = pis_cleaned.index.str.strip().str.replace(r'\s+', ' ', regex=True)
 ### display
 pis_cleaned.head(60)
-
 
 # Read the dataset of GDP by state and county
 gdp_state_county = pd.read_csv('CSV_GDP_State_County.csv')
@@ -53,6 +54,31 @@ gdp_state_county.set_index('Name', inplace = True)
 
 # Drop all the null/blank rows
 gdp_state_county.dropna(inplace = True)
+
+# Get a list of state names for comparison
+state_names = gdp_state_county.index.str.strip().unique()  # Assuming index contains state and county names
+
+# Flag to track first occurrence of state names
+state_seen = set()
+
+state_names = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho',
+               'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi',
+               'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+               'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+               'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
+
+# Function to modify index values
+def modify_name(name):
+    stripped_name = name.strip()
+    if stripped_name == 'United States':
+        return name 
+    if stripped_name in state_names and stripped_name not in state_seen:
+        state_seen.add(stripped_name)
+        return name  
+    return f"{name}_county" 
+
+# Apply the modification function to the index
+gdp_state_county.index = gdp_state_county.index.map(modify_name)
 
 # Replace null values with None
 gdp_state_county.replace('--', 'None', inplace = True)
@@ -83,6 +109,16 @@ for i in state_names:
 # Drop all the null/blank rows
 pi_county.dropna(inplace = True)
 
+### add _county to the end of all counties
+pi_county.index = pi_county.index.where(pi_county.index == 'United States', pi_county.index + '_county')
+
 # Replace null values with None
 pi_county.replace('--', 'None', inplace = True)
 pi_county.head(5)
+
+
+### merge pis_cleaned and gdp_state_county
+merged_data1 = pd.merge(pis_cleaned, gdp_state_county, how='inner', left_index=True, right_index=True)
+
+
+merged_data1.head(10)
