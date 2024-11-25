@@ -122,6 +122,8 @@ def add_state_code_to_counties(df, state_names, state_postal_codes):
 # and (df.loc[name, '2022_prank_gdp'] == 'None')
 # Call the add state code function
 gdp_state_county = add_state_code_to_counties(gdp_state_county, state_names, state_postal_codes)
+
+# Display the gdp by state and county
 #gdp_state_county.head(70)
 
 
@@ -137,8 +139,9 @@ pi_county.set_index('Name', inplace = True)
 
 # Rename the columns of the dataset
 pi_county.rename(columns = {'2021_dollars':'2021_dollars_pi', '2022_dollars':'2022_dollars_pi', '2022_rank':'2022_rank_pi', 
-                                   '2021_percentage':'2021_percentage_pi', '2022_percentage':'2022_percentage_pi', '2022_prank':'2022_prank_pi'},
+                            '2021_percentage ':'2021_percentage_pi', '2022_percentage':'2022_percentage_pi', '2022_prank':'2022_prank_pi'},
                        inplace = True)
+
 # Drop all the null/blank rows
 pi_county.dropna(inplace = True)
 
@@ -200,7 +203,8 @@ pi_county = add_state_code_to_countiespi(pi_county, state_names, state_postal_co
 # Remove all rows that are states
 for i in state_names:
     pi_county.drop(i, axis = 0, inplace = True)
-    
+
+# Display the personal income by county
 #pi_county.head(5)
 
 
@@ -210,6 +214,10 @@ df_combined = pd.merge(gdp_state_county, pis_cleaned, how = 'left', left_index =
 # merge df_combined and pi_county
 df_merged = pd.merge(df_combined, pi_county, how = 'left', left_index = True, right_index = True, suffixes = ['_state', '_county'])
 
-df_merged
+# Fill the missing values of the merged dataframe
+df_merged.fillna({'2021_dollars_pi_state':'N/A', '2022_dollars_pi_state':'N/A', '2022_percentage_pi_state':'N/A', '22_prank_pi':'N/A'}, inplace = True)
+df_merged.fillna({'2021_dollars_pi_county':'N/A', '2022_dollars_pi_county':'N/A', '2022_rank_pi':'N/A', '2021_percentage_pi':'N/A', '2022_percentage_pi_county':'N/A',
+                 '2022_prank_pi':'N/A'}, inplace = True)
 
-#merged_data1.head(10)
+# Display the merged data
+df_merged.head(70)
