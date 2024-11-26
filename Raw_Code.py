@@ -361,3 +361,33 @@ ax[1].set_title("County GDP in 2022")
 ax[1].set_xlabel("GDP")
 plt.tight_layout()
 plt.show()
+
+
+# Visualization 5
+
+df_state_filtered['2021_GDP'] = pd.to_numeric(df_state_filtered['2021_GDP'].astype(str).str.replace(',', ''), errors='coerce')
+df_state_filtered['2022_GDP'] = pd.to_numeric(df_state_filtered['2022_GDP'].astype(str).str.replace(',', ''), errors='coerce')
+
+fig, ax = plt.subplots(figsize=(8, 4))
+
+# X positions for states
+x = range(len(df_state_filtered))
+
+# Scatter points for 2021 and 2022 GDP
+ax.scatter(x, df_state_filtered['2021_GDP'] / 1e9, color='blue', label='2021 GDP', s=50)
+ax.scatter(x, df_state_filtered['2022_GDP'] / 1e9, color='orange', label='2022 GDP', s=50)
+
+ax.plot(x, df_state_filtered['2021_GDP'] / 1e9, color='blue', linestyle='-', alpha=0.7, linewidth=3)
+ax.plot(x, df_state_filtered['2022_GDP'] / 1e9, color='orange', linestyle='-', alpha=0.7, linewidth=2)
+
+ax.set_xlabel("States", fontsize=12)
+ax.set_ylabel("GDP (in trillions)", fontsize=12)
+ax.set_title("GDP of States in 2021 and 2022", fontsize=16)
+
+ax.set_xticks(x)
+ax.set_xticklabels(df_state_filtered.index, rotation=45, ha='right', fontsize=5)
+
+ax.legend()
+
+plt.tight_layout()
+plt.show()
