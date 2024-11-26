@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 ### delcaring pis as the variable for the dataset
 pis = pd.read_csv("CSV_Personal_Income_State.csv")
@@ -220,4 +221,36 @@ df_merged.fillna({'2021_dollars_pi_county':'N/A', '2022_dollars_pi_county':'N/A'
                  '2022_prank_pi':'N/A'}, inplace = True)
 
 # Display the merged data
-df_merged.head(70)
+#df_merged.head(70)
+
+# Filter the merged data to only get the states
+df_state_filtered = df_merged[(df_merged.index.isin(state_names)) & (df_merged['2022_rank_gdp'] == 'None') & (df_merged['2022_prank_gdp'] == 'None')]
+df_state_filtered.drop(columns = ['2021_dollars_pi_county', '2022_dollars_pi_county', '2022_rank_pi', '2021_percentage_pi', '2022_percentage_pi_county', '2022_prank_pi'], inplace = True)
+df_state_filtered.drop(columns = ['2022_rank_gdp', '2022_prank_gdp'], inplace = True)
+df_state_filtered.drop(index = 'DISTRICT OF COLUMBIA', inplace = True)
+
+# Display the filtered data
+#df_state_filtered
+
+# Visualization 1
+# Create a grouped bar chart of GDP of each state in 2021 and 2022
+# Convert GDP columns to numeric after removing commas
+df_state_filtered['2021_GDP'] = pd.to_numeric(df_state_filtered['2021_GDP'].str.replace(',', ''))
+df_state_filtered['2022_GDP'] = pd.to_numeric(df_state_filtered['2022_GDP'].str.replace(',', ''))
+fig, ax = plt.subplots(figsize=(15, 8))
+width = 0.4  # Bar width
+# Creating bar positions
+x = range(len(df_state_filtered))
+x_2021 = [i - width / 2 for i in x]
+x_2022 = [i + width / 2 for i in x]
+# Plot bars
+ax.bar(x_2021, df_state_filtered['2021_GDP'] / 1e9, width=width, label='2021 GDP')
+ax.bar(x_2022, df_state_filtered['2022_GDP'] / 1e9, width=width, label='2022 GDP')
+ax.set_xlabel("States", fontsize=12)
+ax.set_ylabel("GDP (in trillions)", fontsize=12)
+ax.set_title("GDP of States in 2021 and 2022", fontsize=16)
+ax.set_xticks(x)
+ax.set_xticklabels(df_state_filtered.index, rotation=90, fontsize=10)
+ax.legend()
+plt.tight_layout()
+plt.show()
