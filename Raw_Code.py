@@ -295,3 +295,69 @@ plt.xlabel("Year")
 plt.ylabel("GDP (in trillion $)")
 plt.grid(axis="y")
 plt.show()
+
+
+
+# Filter the merged data to only get the counties
+df_county_filtered = df_merged[~df_merged.index.isin(state_names)]
+df_county_filtered.drop(columns = ['2021_dollars_pi_state', '2022_dollars_pi_state', '2022_percentage_pi_state', '22_prank_pi'], inplace = True)
+df_county_filtered.drop(index = 'United States', inplace = True)
+
+
+# Convert the 2021_percentage_gdp column to numeric
+df_county_filtered['2021_percentage_gdp'] = pd.to_numeric(df_county_filtered['2021_percentage_gdp'], errors='coerce')
+# Convert the 2022_percentage_gdp column to numeric
+df_county_filtered['2022_percentage_gdp'] = pd.to_numeric(df_county_filtered['2022_percentage_gdp'], errors='coerce')
+# Get the positive and negative changes in GDP for 2022
+positive_count22 = (df_county_filtered['2021_percentage_gdp'] > 0).sum()
+negative_count22 = (df_county_filtered['2021_percentage_gdp'] < 0).sum()
+nergative_count22 = negative_count21 + (df_county_filtered['2021_percentage_gdp'] == 0).sum()
+# Get the positive and negative changes in GDP for 2021
+positive_count21 = (df_county_filtered['2022_percentage_gdp'] > 0).sum()
+negative_count21 = (df_county_filtered['2022_percentage_gdp'] < 0).sum()
+nergative_count21 = negative_count21 + (df_county_filtered['2022_percentage_gdp'] == 0).sum()
+
+
+# Visualization 3
+# Create a pie chart to show the percentage change of personal income for 2021 and 2022 respectively of all counties=
+# Set the data for the plots
+data_2021 = [positive_count21, negative_count21]
+data_2022 = [positive_count22, negative_count22]
+# Labels for the pie charts
+labels = ['Positive', 'Negative']
+# Create a figure and subplots
+fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+# Pie chart for 2021
+ax[0].pie(data_2021, labels=labels, autopct='%1.1f%%', startangle=90)
+ax[0].set_title('2021 County Percentage Change of Personal Income')
+# Pie chart for 2022
+ax[1].pie(data_2022, labels=labels, autopct='%1.1f%%', startangle=90)
+ax[1].set_title('2022 County Percentage Change of Personal Income')
+plt.tight_layout()
+plt.show()
+
+
+# Convert GDP columns to numeric, handling non-numeric values
+df_county_filtered["2021_GDP"] = pd.to_numeric(df_county_filtered["2021_GDP"].str.replace(",", ""), errors='coerce')
+df_county_filtered["2022_GDP"] = pd.to_numeric(df_county_filtered["2022_GDP"].str.replace(",", ""), errors='coerce')
+# Drop NaN values
+df_county_filtered = df_county_filtered.dropna(subset=['2021_GDP', '2022_GDP'])
+
+
+# Visualization 4
+# Create histograms for county GDP in 2021 and 2022
+# Use logarithmic transformation to obtain GDP values
+df_county_filtered['2021_GDP_log'] = np.log10(df_county_filtered['2021_GDP'].replace(0, np.nan)).fillna(0)
+df_county_filtered['2022_GDP_log'] = np.log10(df_county_filtered['2022_GDP'].replace(0, np.nan)).fillna(0)
+fig, ax = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
+# Plot histogram for 2021 GDP
+ax[0].hist(df_county_filtered['2021_GDP_log'], bins=30, edgecolor='black')
+ax[0].set_title("County GDP in 2021")
+ax[0].set_xlabel("GDP")
+ax[0].set_ylabel("Number of Counties")
+# Plot histogram for 2022 GDP
+ax[1].hist(df_county_filtered['2022_GDP_log'], bins=30, edgecolor='black')
+ax[1].set_title("County GDP in 2022")
+ax[1].set_xlabel("GDP")
+plt.tight_layout()
+plt.show()
