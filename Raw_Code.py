@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 ### delcaring pis as the variable for the dataset
 pis = pd.read_csv("CSV_Personal_Income_State.csv")
@@ -253,4 +254,44 @@ ax.set_xticks(x)
 ax.set_xticklabels(df_state_filtered.index, rotation=90, fontsize=10)
 ax.legend()
 plt.tight_layout()
+plt.show()
+
+# Reshape DataFrame for pivoting
+df_pivot = df_state_filtered
+df_pivot.drop(columns = ['2021_percentage_gdp', '2022_percentage_gdp', '2021_dollars_pi_state', '2022_dollars_pi_state', '2022_percentage_pi_state',
+                        '22_prank_pi'], inplace = True)
+df_pivot = df_pivot.reset_index().melt(id_vars="index", var_name="Year", value_name="GDP")
+
+# Rename the index column to state and sort by state
+df_pivot.rename(columns = {'index':'State'}, inplace = True)
+df_pivot.sort_values(by = 'State', inplace = True)
+
+# Pivot the DataFrame
+df_pivot = df_pivot.pivot(index="Year", columns="State", values="GDP")
+
+# Visualization 2
+# Create a box plot of GDP of all states for 2021 and 2022
+# Extract GDP data for boxplot
+gdp_2021 = df_pivot.loc["2021_GDP"].values
+gdp_2022 = df_pivot.loc["2022_GDP"].values
+# Plotting the boxplot
+plt.figure(figsize=(8, 6))
+plt.boxplot([gdp_2021, gdp_2022], labels=["2021", "2022"])
+# Combine GDP data
+gdp_data = [gdp_2021, gdp_2022]
+# Annotate the min, Q1, median, Q3, and max values
+for i, year_data in enumerate(gdp_data, start=1):
+    q1, median, q3 = np.percentile(year_data, [25, 50, 75])
+    min_value = np.min(year_data)
+    max_value = np.max(year_data)
+    # Add annotations for the boxplot statistics
+    plt.text(i, min_value, f"Min: {min_value}", fontsize=9, ha='left', color='green')
+    plt.text(i, q1, f"Q1: {q1}", fontsize=9, ha='right', color='blue')
+    plt.text(i, median, f"Med: {median}", fontsize=9, ha='left', color='black')
+    plt.text(i, q3, f"Q3: {q3}", fontsize=9, ha='right', color='blue')
+    plt.text(i, max_value, f"Max: {max_value}", fontsize=9, ha='center', color='green')
+plt.title("Boxplot of GDP for All States (2021 vs 2022)")
+plt.xlabel("Year")
+plt.ylabel("GDP (in trillion $)")
+plt.grid(axis="y")
 plt.show()
