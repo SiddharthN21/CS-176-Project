@@ -311,11 +311,11 @@ df_county_filtered['2022_percentage_gdp'] = pd.to_numeric(df_county_filtered['20
 # Get the positive and negative changes in GDP for 2022
 positive_count22 = (df_county_filtered['2021_percentage_gdp'] > 0).sum()
 negative_count22 = (df_county_filtered['2021_percentage_gdp'] < 0).sum()
-nergative_count22 = negative_count21 + (df_county_filtered['2021_percentage_gdp'] == 0).sum()
+negative_count22 = negative_count22 + (df_county_filtered['2021_percentage_gdp'] == 0).sum()
 # Get the positive and negative changes in GDP for 2021
 positive_count21 = (df_county_filtered['2022_percentage_gdp'] > 0).sum()
 negative_count21 = (df_county_filtered['2022_percentage_gdp'] < 0).sum()
-nergative_count21 = negative_count21 + (df_county_filtered['2022_percentage_gdp'] == 0).sum()
+negative_count21 = negative_count21 + (df_county_filtered['2022_percentage_gdp'] == 0).sum()
 
 
 # Visualization 3
@@ -363,31 +363,32 @@ plt.tight_layout()
 plt.show()
 
 
+# Filter the merged data to only get the states
+df_state_filtered2 = df_merged[(df_merged.index.isin(state_names)) & (df_merged['2022_rank_gdp'] == 'None') & (df_merged['2022_prank_gdp'] == 'None')]
+df_state_filtered2.drop(columns = ['2021_dollars_pi_county', '2022_dollars_pi_county', '2022_rank_pi', '2021_percentage_pi', '2022_percentage_pi_county', '2022_prank_pi'], inplace = True)
+df_state_filtered2.drop(columns = ['2022_rank_gdp', '2022_prank_gdp'], inplace = True)
+df_state_filtered2.drop(index = 'DISTRICT OF COLUMBIA', inplace = True)
+
+# Convert the personal income columns to int
+df_state_filtered2['2021_dollars_pi_state'] = pd.to_numeric(df_state_filtered2['2021_dollars_pi_state'].str.replace(",", ""))
+df_state_filtered2['2022_dollars_pi_state'] = pd.to_numeric(df_state_filtered2['2022_dollars_pi_state'].str.replace(",", ""))
+
+
+
 # Visualization 5
-
-df_state_filtered['2021_GDP'] = pd.to_numeric(df_state_filtered['2021_GDP'].astype(str).str.replace(',', ''), errors='coerce')
-df_state_filtered['2022_GDP'] = pd.to_numeric(df_state_filtered['2022_GDP'].astype(str).str.replace(',', ''), errors='coerce')
-
-fig, ax = plt.subplots(figsize=(8, 4))
-
-# X positions for states
-x = range(len(df_state_filtered))
-
-# Scatter points for 2021 and 2022 GDP
-ax.scatter(x, df_state_filtered['2021_GDP'] / 1e9, color='blue', label='2021 GDP', s=50)
-ax.scatter(x, df_state_filtered['2022_GDP'] / 1e9, color='orange', label='2022 GDP', s=50)
-
-ax.plot(x, df_state_filtered['2021_GDP'] / 1e9, color='blue', linestyle='-', alpha=0.7, linewidth=3)
-ax.plot(x, df_state_filtered['2022_GDP'] / 1e9, color='orange', linestyle='-', alpha=0.7, linewidth=2)
-
-ax.set_xlabel("States", fontsize=12)
-ax.set_ylabel("GDP (in trillions)", fontsize=12)
-ax.set_title("GDP of States in 2021 and 2022", fontsize=16)
-
-ax.set_xticks(x)
-ax.set_xticklabels(df_state_filtered.index, rotation=45, ha='right', fontsize=5)
-
-ax.legend()
-
+# Scatter plot of the personal incomes of each state in 2021 and 2022
+states_pos = df_state_filtered2.index
+x_positions = range(len(states_pos))  # Numeric positions for states on the x-axis
+# Create the a stacked bar graph
+plt.figure(figsize=(15, 6))
+# Plot the bars for 2021
+plt.bar(x_positions, df_state_filtered2["2021_dollars_pi_state"], label="2021", color="blue")
+# Plot the bars for 2022 on top of 2021
+plt.bar(x_positions, df_state_filtered2["2022_dollars_pi_state"], bottom=df_state_filtered2["2021_dollars_pi_state"], label="2022", color="orange")
+plt.xticks(x_positions, states_pos, rotation=90)  # Set state names as x-axis labels
+plt.xlabel("States")
+plt.ylabel("Personal Income (Trillion Dollars)")
+plt.title("Total Personal Income of US States in 2021 and 2022")
+plt.legend()
 plt.tight_layout()
 plt.show()
