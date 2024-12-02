@@ -272,8 +272,8 @@ df_pivot = df_pivot.pivot(index="Year", columns="State", values="GDP")
 # Visualization 2
 # Create a box plot of GDP of all states for 2021 and 2022
 # Extract GDP data for boxplot
-gdp_2021 = df_pivot.loc["2021_GDP"].values
-gdp_2022 = df_pivot.loc["2022_GDP"].values
+gdp_2021 = pd.Series(df_pivot.loc["2021_GDP"].values)
+gdp_2022 = pd.Series(df_pivot.loc["2022_GDP"].values)
 # Plotting the boxplot
 plt.figure(figsize=(8, 6))
 plt.boxplot([gdp_2021, gdp_2022], labels=["2021", "2022"])
@@ -281,9 +281,11 @@ plt.boxplot([gdp_2021, gdp_2022], labels=["2021", "2022"])
 gdp_data = [gdp_2021, gdp_2022]
 # Annotate the min, Q1, median, Q3, and max values
 for i, year_data in enumerate(gdp_data, start=1):
-    q1, median, q3 = np.percentile(year_data, [25, 50, 75])
-    min_value = np.min(year_data)
-    max_value = np.max(year_data)
+    q1 = year_data.quantile(0.25)
+    median = year_data.median()
+    q3 = year_data.quantile(0.75)
+    min_value = year_data.min()
+    max_value = year_data.max()
     # Add annotations for the boxplot statistics
     plt.text(i, min_value, f"Min: {min_value}", fontsize=9, ha='left', color='green')
     plt.text(i, q1, f"Q1: {q1}", fontsize=9, ha='right', color='blue')
@@ -347,8 +349,8 @@ df_county_filtered = df_county_filtered.dropna(subset=['2021_GDP', '2022_GDP'])
 # Visualization 4
 # Create histograms for county GDP in 2021 and 2022
 # Use logarithmic transformation to obtain GDP values
-df_county_filtered['2021_GDP_log'] = np.log10(df_county_filtered['2021_GDP'].replace(0, np.nan)).fillna(0)
-df_county_filtered['2022_GDP_log'] = np.log10(df_county_filtered['2022_GDP'].replace(0, np.nan)).fillna(0)
+df_county_filtered['2021_GDP_log'] = np.log10(df_county_filtered['2021_GDP'].replace(0, pd.NA)).fillna(0)
+df_county_filtered['2022_GDP_log'] = np.log10(df_county_filtered['2022_GDP'].replace(0, pd.NA)).fillna(0)
 fig, ax = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
 # Plot histogram for 2021 GDP
 ax[0].hist(df_county_filtered['2021_GDP_log'], bins=30, edgecolor='black')
