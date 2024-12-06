@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-### delcaring pis as the variable for the dataset
+### declaring pis as the variable for the dataset
 pis = pd.read_csv("CSV_Personal_Income_State.csv")
 
 ### removing the given columns for better merging experience later
